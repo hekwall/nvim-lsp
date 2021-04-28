@@ -75,10 +75,12 @@ that config.
 - [tflint](#tflint)
 - [tsserver](#tsserver)
 - [vala_ls](#vala_ls)
+- [verilog_language_server](#verilog_language_server)
 - [vimls](#vimls)
 - [vls](#vls)
 - [vuels](#vuels)
 - [yamlls](#yamlls)
+- [zeta_note](#zeta_note)
 - [zls](#zls)
 
 ## als
@@ -726,7 +728,7 @@ This server accepts configuration via the `settings` key.
 
   Default: `{}`
   
-  Array items: `{properties = {args = {items = {type = "string"},type = "array"},executable = {type = "string"},id = {type = "string"},name = {type = "string"}},type = "object"}`
+  Array items: `{properties = {args = {items = {type = "string"},type = "array"},env = vim.empty_dict(),executable = {type = "string"},id = {type = "string"},name = {type = "string"}},type = "object"}`
   
   Custom emulators to show in the emulator list for easier launching\. If IDs match existing emulators returned by Flutter\, the custom emulators will override them\.
 
@@ -902,7 +904,7 @@ This server accepts configuration via the `settings` key.
 
 - **`dart.previewFlutterUiGuidesCustomTracking`**: `boolean`
 
-  Whether to enable custom tracking of Flutter UI guidelines \(to hide some latency of waiting for the next Flutter Outline\)\.
+  EXPERIMENTAL\: Whether to enable custom tracking of Flutter UI guidelines \(to hide some latency of waiting for the next Flutter Outline\)\.
 
 - **`dart.previewHotReloadOnSaveWatcher`**: `boolean`
 
@@ -1336,6 +1338,10 @@ This server accepts configuration via the `settings` key.
   
   The path to your elm\-test executable\. Should be empty by default\, in that case it will assume the name and try to first get it from a local npm installation or a global one\. If you set it manually it will not try to load from the npm folder\.
 
+- **`elmLS.elmTestRunner.showElmTestOutput`**: `boolean`
+
+  Show output of elm\-test as terminal task
+
 - **`elmLS.onlyUpdateDiagnosticsOnSave`**: `boolean`
 
   Only update compiler diagnostics on save\, not on document change\.
@@ -1503,8 +1509,6 @@ This server accepts configuration via the `settings` key.
 
 - **`flow.useNPMPackagedFlow`**: `boolean`
 
-  Default: `true`
-  
   Support using flow through your node\_modules folder\, WARNING\: Checking this box is a security risk\. When you open a project we will immediately run code contained within it\.
 
 </details>
@@ -1881,6 +1885,18 @@ This server accepts configuration via the `settings` key.
   
   Enables eval plugin
 
+- **`haskell.plugin.ghcide-completions.config.autoExtendOn`**: `boolean`
+
+  Default: `true`
+  
+  null
+
+- **`haskell.plugin.ghcide-completions.config.snippetsOn`**: `boolean`
+
+  Default: `true`
+  
+  null
+
 - **`haskell.plugin.ghcide-type-lenses.config.mode`**: `enum { "always", "exported", "diagnostics" }`
 
   Default: `true`
@@ -1961,7 +1977,7 @@ This server accepts configuration via the `settings` key.
 
 - **`haskell.plugin.tactic.config.max_use_ctor_actions`**: `integer`
 
-  Default: `true`
+  Default: `5`
   
   null
 
@@ -1970,6 +1986,18 @@ This server accepts configuration via the `settings` key.
   Default: `true`
   
   Enables wingman \(tactic\) plugin
+
+- **`haskell.plugin.tactics.config.hole_severity`**: `enum { 1, 2, 3, 4, vim.NIL }`
+
+  Default: `vim.NIL`
+  
+  The severity to use when showing hole diagnostics\.
+
+- **`haskell.plugin.tactics.config.timeout_duration`**: `integer`
+
+  Default: `2`
+  
+  null
 
 - **`haskell.releasesURL`**: `string`
 
@@ -4275,7 +4303,7 @@ This server accepts configuration via the `settings` key.
 
   null
 
-- **`rust-analyzer.debug.sourceFileMap`**: `object`
+- **`rust-analyzer.debug.sourceFileMap`**: `object|string`
 
   Default: `{["/rustc/<id>"] = "${env:USERPROFILE}/.rustup/toolchains/<toolchain-id>/lib/rustlib/src/rust"}`
   
@@ -4298,6 +4326,12 @@ This server accepts configuration via the `settings` key.
 - **`rust-analyzer.diagnostics.enableExperimental`**: `boolean`
 
   Default: `true`
+  
+  null
+
+- **`rust-analyzer.diagnostics.remapPrefix`**: `object`
+
+  Default: `vim.empty_dict()`
   
   null
 
@@ -4390,6 +4424,12 @@ This server accepts configuration via the `settings` key.
   Default: `true`
   
   null
+
+- **`rust-analyzer.inlayHints.smallerHints`**: `boolean`
+
+  Default: `true`
+  
+  Whether inlay hints font size should be smaller than editor\'s font size\.
 
 - **`rust-analyzer.inlayHints.typeHints`**: `boolean`
 
@@ -5457,6 +5497,22 @@ require'lspconfig'.vala_ls.setup{}
     root_dir = root_pattern("meson.build", ".git")
 ```
 
+## verilog_language_server
+
+verilog_language_server
+
+
+```lua
+require'lspconfig'.verilog_language_server.setup{}
+
+  Commands:
+  
+  Default Values:
+    cmd = { "vls" }
+    filetypes = { "verilog" }
+    root_dir = vim's cwd
+```
+
 ## vimls
 
 https://github.com/iamcco/vim-language-server
@@ -5908,6 +5964,52 @@ require'lspconfig'.yamlls.setup{}
     cmd = { "yaml-language-server", "--stdio" }
     filetypes = { "yaml" }
     root_dir = root_pattern(".git", vim.fn.getcwd())
+```
+
+## zeta_note
+
+https://github.com/artempyanykh/zeta-note
+
+Markdown LSP server for easy note-taking with cross-references and diagnostics.
+
+Binaries can be downloaded from https://github.com/artempyanykh/zeta-note/releases
+
+**By default, zeta-note doesn't have a `cmd` set.** This is because nvim-lspconfig does not make assumptions about your path. You must add the following to your init.vim or init.lua to set `cmd` to the absolute path ($HOME and ~ are not expanded) of your zeta-note binary.
+
+```lua
+require'lspconfig'.zeta_note.setup{
+  cmd = {'path/to/zeta-note'}
+}
+```
+
+This server accepts configuration via the `settings` key.
+<details><summary>Available settings:</summary>
+
+- **`zetaNote.customCommand`**: `string`
+
+  When set use this command to run the language server\.
+  The command is split on spaces\: first part is the command name\, the rest is the arguments\.
+
+- **`zetaNote.customCommandDir`**: `string`
+
+  null
+
+- **`zetaNote.trace.server`**: `enum { "off", "messages", "verbose" }`
+
+  Default: `"verbose"`
+  
+  Level of verbosity in communicating with the server
+
+</details>
+
+```lua
+require'lspconfig'.zeta_note.setup{}
+
+  Commands:
+  
+  Default Values:
+    filetypes = { "markdown" }
+    root_dir = root_pattern(".zeta.toml")
 ```
 
 ## zls
